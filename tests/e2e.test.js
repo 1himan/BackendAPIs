@@ -16,19 +16,35 @@ beforeAll(async () => {
       useUnifiedTopology: true,
     });
   }
-
   // Clear all data from collections
   await User.deleteMany({});
   await Availability.deleteMany({});
   await Appointment.deleteMany({});
   // Create Professor P1 and get token
+  // this sends the user data to the server right?
+  // but in which database does the server should save this data?
+  // I'm very confused right now?
+  // we're testing via this file and also connecting to the database in this file? what is even going on?
+  // the connection to databse should be established by the server itself, why should we do it here?
+  // just because its a test data base that why we're doing it here?
   const professor = await request(app).post("/api/auth/signup").send({
     name: "Professor P1",
     email: "professor.p1@example.com",
     password: "password123",
     role: "professor",
   });
+
+  // debug statements
+  console.log("Response from /api/auth/signup:", professor.body);
+  professorId = professor.body.user?._id; // Use optional chaining for safety
+  if (!professorId) {
+    throw new Error(
+      "Professor ID is undefined. Check the API response structure."
+    );
+  }
   professorId = professor.body.user._id;
+  // Access the token directly from the signup response
+  professorToken = professor.body.token;
 
   const professorLogin = await request(app).post("/api/auth/login").send({
     email: "professor.p1@example.com",
@@ -71,11 +87,12 @@ describe("College Appointment System API Tests", () => {
   it("should allow Professor P1 to add availability slots", async () => {
     const res = await request(app)
       .post("/api/professor/availability")
-      .set("Authorization", `Bearer ${professorToken}`)
+      .set("Cookie", `token=${professorToken}`)
       .send({
         startTime: "10:00 AM",
         endTime: "11:00 AM",
         date: "2024-12-20",
+        day: "Monday",
       });
 
     expect(res.statusCode).toBe(201);

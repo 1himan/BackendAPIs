@@ -8,7 +8,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    
     // Check if the email is already in use
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -19,7 +18,36 @@ const register = async (req, res) => {
     const newUser = new User({ name, email, password, role });
     await newUser.save();
 
-    res.status(201).json({ message: "User registered successfully." });
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: newUser._id, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "24hrs" }
+    );
+    // Set token in cookie and send user data in response
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+    console.log({
+      message: "User registered successfully.",
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
+    res.status(201).json({
+      message: "User registered successfully.",
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Error registering user.", error });
   }
@@ -52,8 +80,22 @@ const login = async (req, res) => {
         expiresIn: "24hrs",
       }
     );
+    // Set token in a cookie and send a success response
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
 
-    res.status(200).json({ message: "Login successful.", token });
+    res.status(200).json({
+      message: "Login successful.",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Error logging in.", error });
   }
