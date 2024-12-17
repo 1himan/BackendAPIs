@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "nodemon app"
+    "start": "nodemon app",
+    "seed": "node utils/seedData.js"
   },
   "keywords": [],
   "author": "",

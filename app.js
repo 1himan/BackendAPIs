@@ -1,3 +1,4 @@
+// main server file app.js
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -17,14 +18,12 @@ app.use("/api/student", studentRoutes);
 
 // Connect to the database
 mongoose
-  .connect("mongodb://localhost/college-appointment-system", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect("mongodb://localhost/college-appointment-system", {})
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-// Start the server
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
+// // Start the server
+// app.listen(5000, () => {
+//   console.log("Server running on port 5000");
+// });
+module.exports = app; 

@@ -1,6 +1,7 @@
-// authController.js
+// /controllers/authController.js
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Register a new user
@@ -25,6 +26,7 @@ const register = async (req, res) => {
 };
 
 // Login a user
+// this controller is setting token for the user
 const login = async (req, res) => {
   console.log("JWT_SECRET:", JWT_SECRET);
   try {
@@ -57,28 +59,4 @@ const login = async (req, res) => {
   }
 };
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.header("Authorization");
-
-  if (!authHeader) {
-    return res.status(401).json({ message: "No token, authorization denied" });
-  }
-
-  // Ensure Bearer token format
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Malformed token, authorization denied" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Attach user info to request
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Token is not valid" });
-  }
-};
-
-module.exports = { register, login, authMiddleware };
+module.exports = { register, login };

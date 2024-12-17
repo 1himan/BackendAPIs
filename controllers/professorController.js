@@ -5,24 +5,27 @@ const Appointment = require("../models/Appointment");
 // Add availability for a professor
 const addAvailability = async (req, res) => {
   try {
-    const { professor, startTime, endTime, date, day } = req.body;
-    // Check if availability already exists for this professor and time
+    const professor = req.user.id;
+    const { startTime, endTime, date, day } = req.body;
+
     const existingAvailability = await Availability.findOne({
       professor,
       startTime,
       endTime,
     });
+
     if (existingAvailability) {
       return res.status(400).json({ message: "Availability already exists." });
     }
+
     const newAvailability = new Availability({
       professor,
       startTime,
       endTime,
       date,
-      day, // Make sure to pass the day field
+      day,
     });
-
+    console.log(newAvailability)
     await newAvailability.save();
     res.status(201).json({ message: "Availability added successfully." });
   } catch (error) {
@@ -32,16 +35,18 @@ const addAvailability = async (req, res) => {
 
 // Get available time slots for a professor
 const getAvailability = async (req, res) => {
+  console.log("This shit runs")
   try {
     const professorId = req.params.professorId;
-    
-    // Find availability for the given professor
+    console.log(professorId)
     const availability = await Availability.find({ professor: professorId });
-    
+    console.log(availability)
     if (!availability) {
-      return res.status(404).json({ message: "No availability found for this professor." });
+      return res
+        .status(404)
+        .json({ message: "No availability found for this professor." });
     }
-    
+
     res.status(200).json(availability);
   } catch (error) {
     res.status(500).json({ message: "Error fetching availability.", error });

@@ -8,3 +8,5 @@ const roleMiddleware = (roles) => {
     next();
   };
 };
+
+module.exports=roleMiddleware
