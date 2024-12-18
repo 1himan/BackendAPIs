@@ -9,4 +9,4 @@ const roleMiddleware = (roles) => {
   };
 };
 
-module.exports=roleMiddleware
+module.exports = roleMiddleware;

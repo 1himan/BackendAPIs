@@ -19,6 +19,8 @@ router.get("/availability/:professorId", professorController.getAvailability);
 // routes/professorRoutes.js
 router.put(
   "/cancel-appointment/:appointmentId",
+  authMiddleware, // Validates the token
+  roleMiddleware("professor"), // Ensures only professors can access
   professorController.cancelAppointment
 );
 

@@ -30,15 +30,15 @@ const register = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
-    console.log({
-      message: "User registered successfully.",
-      user: {
-        _id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-      },
-    });
+    // console.log({
+    //   message: "User registered successfully.",
+    //   user: {
+    //     _id: newUser._id,
+    //     name: newUser.name,
+    //     email: newUser.email,
+    //     role: newUser.role,
+    //   },
+    // });
     res.status(201).json({
       message: "User registered successfully.",
       user: {
@@ -54,9 +54,8 @@ const register = async (req, res) => {
 };
 
 // Login a user
-// this controller is setting token for the user
 const login = async (req, res) => {
-  console.log("JWT_SECRET:", JWT_SECRET);
+  // console.log("JWT_SECRET:", JWT_SECRET);
   try {
     const { email, password } = req.body;
 

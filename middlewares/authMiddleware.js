@@ -1,34 +1,32 @@
+// authMiddleware.js
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const authMiddleware = (req, res, next) => {
   try {
-    let token;
-
-    // Check for token in the Authorization header
-    const authHeader = req.header("Authorization");
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.split(" ")[1];
-    }
-
-    // If no Bearer token, check for token in cookies
-    if (!token && req.cookies && req.cookies.token) {
-      token = req.cookies.token;
-    }
-
-    // If still no token, deny access
-    if (!token) {
+    // Check for token in cookies
+    // console.log(req.cookies)
+    if (!req.cookies || !req.cookies.token) {
       return res
         .status(401)
         .json({ message: "No token provided, authorization denied" });
     }
 
+    // Extract token from cookies
+    const token = req.cookies.token;
+    // console.log(token);
     // Verify the token
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Attach user info to the request object
+
+    // Attach user info to the request object
+    req.user = decoded;
+    // console.log(decoded)
+
+    // Call next middleware
     next();
   } catch (error) {
+    console.error("Authorization error:", error.message);
     return res.status(401).json({ message: "Token is not valid" });
   }
 };

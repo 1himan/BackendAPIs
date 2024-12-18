@@ -13,32 +13,60 @@ const viewAvailability = async (req, res) => {
   }
 };
 
-// Book an appointment
+// Book an appointmentconst 
 const bookAppointment = async (req, res) => {
   try {
-    const { studentId, professorId, time } = req.body;
+    const { studentId, professorId, startTime, endTime, date, day } = req.body;
+
+    // Debugging input
+    // console.log("Book Appointment Input:", req.body);
+
+    if (!studentId || !professorId || !startTime || !date) {
+      return res
+        .status(400)
+        .json({ message: "Invalid request data.", body: req.body });
+    }
+
     const existingAppointment = await Appointment.findOne({
       professor: professorId,
-      time,
+      date: date,
+      startTime: startTime,
     });
 
     if (existingAppointment) {
-      return res.status(400).json({ message: "Time slot already booked." });
+      return res.status(400).json({
+        message: "Time slot already booked.",
+        query: { professor: professorId, date, startTime },
+      });
     }
 
     const newAppointment = new Appointment({
       student: studentId,
       professor: professorId,
-      time,
-      status: "booked",
+      startTime,
+      endTime,
+      date,
+      day,
     });
 
     await newAppointment.save();
-    res.status(201).json({ message: "Appointment booked successfully." });
+
+    res.status(201).json({
+      message: "Appointment booked successfully.",
+      appointment: newAppointment,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error booking appointment.", error });
+    console.error("Error booking appointment:", error);
+    res.status(500).json({
+      message: "Error booking appointment.",
+      error: error.message,
+      stack: error.stack, // Log the error stack trace for debugging
+      body: req.body, // Include the request body for debugging
+    });
   }
 };
+
+
 
 // controllers/studentController.js
 const getAppointments = async (req, res) => {

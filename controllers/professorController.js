@@ -12,6 +12,7 @@ const addAvailability = async (req, res) => {
       professor,
       startTime,
       endTime,
+      date,
     });
 
     if (existingAvailability) {
@@ -25,7 +26,7 @@ const addAvailability = async (req, res) => {
       date,
       day,
     });
-    console.log(newAvailability)
+    // console.log(newAvailability);
     await newAvailability.save();
     res.status(201).json({ message: "Availability added successfully." });
   } catch (error) {
@@ -35,12 +36,12 @@ const addAvailability = async (req, res) => {
 
 // Get available time slots for a professor
 const getAvailability = async (req, res) => {
-  console.log("This shit runs")
+  console.log("This shit runs");
   try {
     const professorId = req.params.professorId;
-    console.log(professorId)
+    console.log(professorId);
     const availability = await Availability.find({ professor: professorId });
-    console.log(availability)
+    console.log(availability);
     if (!availability) {
       return res
         .status(404)
@@ -56,12 +57,21 @@ const getAvailability = async (req, res) => {
 const cancelAppointment = async (req, res) => {
   try {
     const { appointmentId } = req.params;
-    const appointment = await Appointment.findById(appointmentId);
+    const professorId = req.user.id;
 
+    const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found." });
     }
 
+    // Ensure the appointment belongs to the professor
+    if (appointment.professor.toString() !== professorId) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to cancel this appointment." });
+    }
+
+    // Cancel the appointment
     appointment.status = "canceled";
     await appointment.save();
 

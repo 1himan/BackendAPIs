@@ -12,13 +12,25 @@ const appointmentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    time: {
-      type: Date,
+    startTime: {
+      type: String, // Store "10:00 AM" format
+      required: true,
+    },
+    endTime: {
+      type: String, // Store "11:00 AM" format
+      required: true,
+    },
+    date: {
+      type: String, // Store "2024-12-20" as a simple string
+      required: true,
+    },
+    day: {
+      type: String, // Store the day name like "Monday"
       required: true,
     },
     status: {
       type: String,
-      enum: ["booked", "canceled", "completed"], // added "completed" status
+      enum: ["booked", "canceled", "completed"],
       default: "booked",
     },
     createdAt: {
@@ -35,10 +47,13 @@ const appointmentSchema = new mongoose.Schema(
   }
 );
 
-// Compound index to ensure unique appointments for a professor at a specific time
-appointmentSchema.index({ professor: 1, time: 1 }, { unique: true });
+// Compound index to prevent overlapping appointments for a professor
+appointmentSchema.index(
+  { professor: 1, date: 1, startTime: 1 },
+  { unique: true }
+);
 
-// Pre-save hook to update the updatedAt field
+// Pre-save hook to ensure updatedAt is always updated
 appointmentSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
