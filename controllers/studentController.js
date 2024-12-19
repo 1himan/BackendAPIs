@@ -1,6 +1,7 @@
 // controllers/studentController.js
 const Availability = require("../models/Availability");
 const Appointment = require("../models/Appointment");
+const User = require("../models/User");
 
 // View available time slots
 const viewAvailability = async (req, res) => {
@@ -13,33 +14,140 @@ const viewAvailability = async (req, res) => {
   }
 };
 
-// Book an appointmentconst 
+// book an appointment
 const bookAppointment = async (req, res) => {
-  try {
-    const { studentId, professorId, startTime, endTime, date, day } = req.body;
+  const { studentId, professorId, startTime, endTime, date, day } = req.body;
 
-    // Debugging input
-    // console.log("Book Appointment Input:", req.body);
+  const validateAppointmentData = () => {
+    const requiredFields = [
+      "studentId",
+      "professorId",
+      "startTime",
+      "endTime",
+      "date",
+    ];
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
 
-    if (!studentId || !professorId || !startTime || !date) {
-      return res
-        .status(400)
-        .json({ message: "Invalid request data.", body: req.body });
+    if (missingFields.length) {
+      return {
+        isValid: false,
+        error: {
+          status: 400,
+          message: "Missing required fields",
+          required: missingFields,
+        },
+      };
     }
 
-    const existingAppointment = await Appointment.findOne({
+    const appointmentDate = new Date(date);
+    if (appointmentDate < new Date()) {
+      return {
+        isValid: false,
+        error: {
+          status: 400,
+          message: "Cannot book appointments in the past",
+        },
+      };
+    }
+
+    if (startTime >= endTime) {
+      return {
+        isValid: false,
+        error: {
+          status: 400,
+          message: "Start time must be before end time",
+        },
+      };
+    }
+
+    return { isValid: true };
+  };
+
+  const validateUsers = async (studentId, professorId) => {
+    try {
+      const [student, professor] = await Promise.all([
+        User.findOne({ _id: studentId, role: "student" }),
+        User.findOne({ _id: professorId, role: "professor" }),
+      ]);
+
+      if (!student || !professor) {
+        return {
+          isValid: false,
+          error: {
+            status: 404,
+            message: !student ? "Student not found" : "Professor not found",
+          },
+        };
+      }
+
+      return { isValid: true, student, professor };
+    } catch (error) {
+      return {
+        isValid: false,
+        error: {
+          status: 500,
+          message: "Error validating users",
+          error: error.message,
+        },
+      };
+    }
+  };
+
+  const checkOverlappingAppointments = async (
+    professorId,
+    date,
+    startTime,
+    endTime
+  ) => {
+    const overlapping = await Appointment.findOne({
       professor: professorId,
-      date: date,
-      startTime: startTime,
+      date,
+      $or: [
+        {
+          startTime: { $lt: endTime },
+          endTime: { $gt: startTime },
+        },
+      ],
     });
 
-    if (existingAppointment) {
-      return res.status(400).json({
-        message: "Time slot already booked.",
-        query: { professor: professorId, date, startTime },
-      });
+    if (overlapping) {
+      return {
+        hasOverlap: true,
+        error: {
+          status: 400,
+          message: "This time slot overlaps with an existing appointment",
+        },
+      };
     }
 
+    return { hasOverlap: false };
+  };
+
+  try {
+    // Validate input data
+    const dataValidation = validateAppointmentData();
+    if (!dataValidation.isValid) {
+      return res.status(dataValidation.error.status).json(dataValidation.error);
+    }
+
+    // Validate users
+    const userValidation = await validateUsers(studentId, professorId);
+    if (!userValidation.isValid) {
+      return res.status(userValidation.error.status).json(userValidation.error);
+    }
+
+    // Check for overlapping appointments
+    const overlapCheck = await checkOverlappingAppointments(
+      professorId,
+      date,
+      startTime,
+      endTime
+    );
+    if (overlapCheck.hasOverlap) {
+      return res.status(overlapCheck.error.status).json(overlapCheck.error);
+    }
+
+    // Create and save appointment
     const newAppointment = new Appointment({
       student: studentId,
       professor: professorId,
@@ -51,28 +159,28 @@ const bookAppointment = async (req, res) => {
 
     await newAppointment.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Appointment booked successfully.",
       appointment: newAppointment,
     });
   } catch (error) {
     console.error("Error booking appointment:", error);
-    res.status(500).json({
-      message: "Error booking appointment.",
-      error: error.message,
-      stack: error.stack, // Log the error stack trace for debugging
-      body: req.body, // Include the request body for debugging
+    return res.status(500).json({
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
-
 
 
 // controllers/studentController.js
 const getAppointments = async (req, res) => {
   try {
     const { studentId } = req.query;
-    const appointments = await Appointment.find({ student: studentId, status: "booked" });
+    const appointments = await Appointment.find({
+      student: studentId,
+      status: "booked",
+    });
 
     res.status(200).json(appointments);
   } catch (error) {

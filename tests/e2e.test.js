@@ -122,14 +122,16 @@ describe("College Appointment System API Tests", () => {
     // expect(res.body.appointment).toHaveProperty("status", "booked");
   });
   it("should allow Student A2 to book another appointment", async () => {
-    const res = await request(app).post("/api/student/book").send({
-      studentId: "67629962f4f392de2d2c39c5",
-      professorId: "67629962f4f392de2d2c39c0",
-      startTime: "11:00 AM",
-      endTime: "12:00 PM",
-      date: "2024-12-20",
-      day: "Monday",
-    });
+    const res = await request(app)
+      .post("/api/student/book")
+      .send({
+        studentId: `${studentA2Id}`,
+        professorId: `${professorId}`,
+        startTime: "11:00 AM",
+        endTime: "12:00 PM",
+        date: "2024-12-20",
+        day: "Monday",
+      });
 
     expect(res.statusCode).toBe(201);
     expect(res.body.message).toBe("Appointment booked successfully.");
@@ -144,7 +146,9 @@ describe("College Appointment System API Tests", () => {
       .set("Cookie", `token=${studentA1Token}`);
 
     // Ensure appointments exist and extract the first appointment ID
+    console.log(appointmentRes.body)
     const appointmentId = appointmentRes.body[0]?._id;
+    console.log(appointmentId)
     if (!appointmentId) throw new Error("No appointment found to cancel");
 
     // Cancel the appointment using the professor's token
@@ -160,11 +164,10 @@ describe("College Appointment System API Tests", () => {
     const res = await request(app)
       .get("/api/student/appointments")
       .set("Cookie", `token=${studentA1Token}`);
-
     expect(res.body[0]?.status).toBe("canceled");
   });
 });
-
+    
 afterAll(async () => {
   await mongoose.connection.close();
 });

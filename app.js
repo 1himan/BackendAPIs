@@ -22,7 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/professor", professorRoutes);
 app.use("/api/student", studentRoutes);
 
-// Start the server
+// // Start the server
 // app.listen(5000, () => {
 //   console.log("Server running on port 5000");
 // });

@@ -4,6 +4,7 @@ const router = express.Router();
 const studentController = require("../controllers/studentController");
 const roleMiddleware = require("../middlewares/roles");
 const authMiddleware = require("../middlewares/authMiddleware");
+const Appointment = require("../models/Appointment");
 
 // Get available time slots
 router.get("/availability", studentController.viewAvailability);
