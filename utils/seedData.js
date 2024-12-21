@@ -40,27 +40,6 @@ const initializeData = async () => {
 
     console.log("Added users:", professor, student1, student2);
 
-    // Add availability for the professor
-    // const availability = await Availability.create({
-    //   professor: professor._id,
-    //   startTime: "10:00 AM",
-    //   endTime: "11:00 AM",
-    //   date: "2024-12-20",
-    //   day: "Monday",
-    // });
-
-    // console.log("Added availability:", availability);
-
-    // Add an appointment
-    // const appointment = await Appointment.create({
-    //   professor: professor._id,
-    //   student: student._id,
-    //   time: "2024-12-20T10:00:00.000Z",
-    //   status: "booked",
-    // });
-
-    // console.log("Added appointment:", appointment);
-
     console.log("Dummy data initialized successfully!");
     process.exit(0); // Exit the process after seeding
   } catch (error) {

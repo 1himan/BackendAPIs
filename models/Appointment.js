@@ -1,5 +1,19 @@
+/**
+ * @fileoverview Appointment Model Definition
+ * Defines the schema for appointment scheduling between professors and students
+ *
+ * @requires mongoose
+ * @module models/Appointment
+ */
+
 const mongoose = require("mongoose");
 
+/**
+ * Appointment Schema
+ * Represents a scheduled appointment between a professor and a student
+ *
+ * @typedef {Object} AppointmentSchema
+ */
 const appointmentSchema = new mongoose.Schema(
   {
     professor: {
@@ -47,16 +61,31 @@ const appointmentSchema = new mongoose.Schema(
   }
 );
 
-// Compound index to prevent overlapping appointments for a professor
+/**
+ * Compound Index Definition
+ * Prevents overlapping appointments for a professor on the same date and time
+ *
+ * @index {professor: 1, date: 1, startTime: 1}
+ * @unique
+ */
 appointmentSchema.index(
   { professor: 1, date: 1, startTime: 1 },
   { unique: true }
 );
 
-// Pre-save hook to ensure updatedAt is always updated
+/**
+ * Pre-save middleware
+ * Updates the updatedAt timestamp before each save operation
+ *
+ * @pre save
+ */
 appointmentSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
+/**
+ * Exports the Appointment model
+ * @exports Appointment
+ */
 module.exports = mongoose.model("Appointment", appointmentSchema);

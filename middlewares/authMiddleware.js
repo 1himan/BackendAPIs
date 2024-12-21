@@ -1,29 +1,41 @@
-// authMiddleware.js
+/**
+ * @fileoverview Authentication Middleware
+ * /middlewares/authMiddleware.js
+ * Middleware to verify JWT tokens and protect routes
+ *
+ * @requires jsonwebtoken
+ * @requires dotenv
+ */
+
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
+/**
+ * Authentication Middleware
+ * Verifies JWT token from cookies and attaches user data to request
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {void}
+ * @throws {401} If token is missing or invalid
+ */
 const authMiddleware = (req, res, next) => {
   try {
-    // Check for token in cookies
-    // console.log(req.cookies)
+    // Verify token exists in cookies
     if (!req.cookies || !req.cookies.token) {
       return res
         .status(401)
         .json({ message: "No token provided, authorization denied" });
     }
 
-    // Extract token from cookies
+    // Extract and verify token
     const token = req.cookies.token;
-    // console.log(token);
-    // Verify the token
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // Attach user info to the request object
+    // Attach decoded user info to request
     req.user = decoded;
-    // console.log(decoded)
-
-    // Call next middleware
     next();
   } catch (error) {
     console.error("Authorization error:", error.message);

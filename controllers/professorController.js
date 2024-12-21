@@ -1,13 +1,36 @@
-// controllers/professorController.js
+/**
+ * @fileoverview Professor Controller
+ * Handles all professor-related business logic for availability and appointments
+ *
+ * @requires ../models/Availability
+ * @requires ../models/Appointment
+ */
+
 const Availability = require("../models/Availability");
 const Appointment = require("../models/Appointment");
 
-// Add availability for a professor
+/**
+ * Adds new availability slots for a professor
+ *
+ * @async
+ * @function addAvailability
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user details
+ * @param {string} req.user.id - Professor's ID
+ * @param {Object} req.body - Availability details
+ * @param {string} req.body.startTime - Start time of slot
+ * @param {string} req.body.endTime - End time of slot
+ * @param {string} req.body.date - Date of availability
+ * @param {string} req.body.day - Day of the week
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>} - JSON response confirming addition
+ */
 const addAvailability = async (req, res) => {
   try {
     const professor = req.user.id;
     const { startTime, endTime, date, day } = req.body;
 
+    // Check for existing availability
     const existingAvailability = await Availability.findOne({
       professor,
       startTime,
@@ -19,6 +42,7 @@ const addAvailability = async (req, res) => {
       return res.status(400).json({ message: "Availability already exists." });
     }
 
+    // Create new availability
     const newAvailability = new Availability({
       professor,
       startTime,
@@ -26,7 +50,6 @@ const addAvailability = async (req, res) => {
       date,
       day,
     });
-    // console.log(newAvailability);
     await newAvailability.save();
     res.status(201).json({ message: "Availability added successfully." });
   } catch (error) {
@@ -34,18 +57,26 @@ const addAvailability = async (req, res) => {
   }
 };
 
-// Get available time slots for a professor
+/**
+ * Retrieves availability slots for a specific professor
+ *
+ * @async
+ * @function getAvailability
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.professorId - Professor's ID
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>} - JSON response with availability data
+ */
 const getAvailability = async (req, res) => {
-  console.log("This shit runs");
   try {
     const professorId = req.params.professorId;
-    console.log(professorId);
     const availability = await Availability.find({ professor: professorId });
-    console.log(availability);
+
     if (!availability) {
-      return res
-        .status(404)
-        .json({ message: "No availability found for this professor." });
+      return res.status(404).json({
+        message: "No availability found for this professor.",
+      });
     }
 
     res.status(200).json(availability);
@@ -54,24 +85,38 @@ const getAvailability = async (req, res) => {
   }
 };
 
+/**
+ * Cancels an existing appointment
+ *
+ * @async
+ * @function cancelAppointment
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.appointmentId - ID of appointment to cancel
+ * @param {Object} req.user - Authenticated user details
+ * @param {string} req.user.id - Professor's ID
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>} - JSON response confirming cancellation
+ */
 const cancelAppointment = async (req, res) => {
   try {
     const { appointmentId } = req.params;
     const professorId = req.user.id;
 
+    // Find and validate appointment
     const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found." });
     }
 
-    // Ensure the appointment belongs to the professor
+    // Verify professor's authorization
     if (appointment.professor.toString() !== professorId) {
-      return res
-        .status(403)
-        .json({ message: "Not authorized to cancel this appointment." });
+      return res.status(403).json({
+        message: "Not authorized to cancel this appointment.",
+      });
     }
 
-    // Cancel the appointment
+    // Update appointment status
     appointment.status = "canceled";
     await appointment.save();
 
