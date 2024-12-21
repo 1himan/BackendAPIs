@@ -70,6 +70,7 @@ app.use("/api/student", studentRoutes);
  * @param {number} port - Port number (5000)
  * @param {Function} callback - Function to execute once server starts
  */
+
 // app.listen(5000, () => {
 //   console.log("Server running on port 5000");
 // });
