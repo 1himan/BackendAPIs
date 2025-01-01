@@ -128,3 +128,6 @@ const login = async (req, res) => {
 };
 
 module.exports = { register, login };
+
+// scp -i "C:\1himan\Personal Documents\indudidishaludidi.pem" global-bundle.pem ec2-user@13.201.95.230:~/
+// ssh -i C:\1himan\Personal Documents\indudidishaludidi.pem ubuntu@13.201.95.230

@@ -114,7 +114,7 @@ describe("College Appointment System API Tests", () => {
       .send({
         startTime: "10:00 AM",
         endTime: "12:00 PM",
-        date: "2024-12-20",
+        date: "2025-12-20",
         day: "Monday",
       });
     expect(res.statusCode).toBe(201);
@@ -146,7 +146,7 @@ describe("College Appointment System API Tests", () => {
         studentId: studentA1Id,
         startTime: "10:00 AM",
         endTime: "11:00 AM",
-        date: "2024-12-23",
+        date: "2025-12-23",
         day: "Monday",
       });
 
@@ -166,7 +166,7 @@ describe("College Appointment System API Tests", () => {
         professorId: `${professorId}`,
         startTime: "11:00 AM",
         endTime: "12:00 PM",
-        date: "2024-12-23",
+        date: "2025-12-23",
         day: "Monday",
       });
 

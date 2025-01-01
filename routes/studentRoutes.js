@@ -21,6 +21,8 @@ const roleMiddleware = require("../middlewares/roles");
  * @route GET /api/student/availability
  * @access Public
  */
+
+// /api/students/availability - get request
 router.get("/availability", studentController.viewAvailability);
 
 /**

@@ -34,10 +34,10 @@ app.use(cookieParser());
  * Host: localhost
  * Port: Default MongoDB port (27017)
  */
-mongoose
-  .connect("mongodb://localhost/college-appointment-system", {})
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+// mongoose
+//   .connect(process.env.MONGO_URI)
+//   .then(() => console.log("MongoDB connected"))
+//   .catch((err) => console.log(err));
 
 /**
  * Route Imports
@@ -59,6 +59,9 @@ const studentRoutes = require("./routes/studentRoutes");
  * Professor routes: /api/professor/*
  * Student routes: /api/student/*
  */
+app.get("/", (req, res) => {
+  res.send("Hello and welcome to our server!");
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/professor", professorRoutes);
 app.use("/api/student", studentRoutes);
@@ -70,10 +73,10 @@ app.use("/api/student", studentRoutes);
  * @param {number} port - Port number (5000)
  * @param {Function} callback - Function to execute once server starts
  */
-
-// app.listen(5000, () => {
-//   console.log("Server running on port 5000");
-// });
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log("Server running on port 5000");
+});
 
 /**
  * Module Exports

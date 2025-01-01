@@ -73,11 +73,9 @@ const bookAppointment = async (req, res) => {
     ]);
 
     if (!student || !professor) {
-      return res
-        .status(404)
-        .json({
-          message: !student ? "Student not found" : "Professor not found",
-        });
+      return res.status(404).json({
+        message: !student ? "Student not found" : "Professor not found",
+      });
     }
 
     const overlapping = await Appointment.findOne({
@@ -87,11 +85,9 @@ const bookAppointment = async (req, res) => {
     });
 
     if (overlapping) {
-      return res
-        .status(400)
-        .json({
-          message: "This time slot overlaps with an existing appointment.",
-        });
+      return res.status(400).json({
+        message: "This time slot overlaps with an existing appointment.",
+      });
     }
 
     const newAppointment = new Appointment({
@@ -104,12 +100,10 @@ const bookAppointment = async (req, res) => {
     });
 
     await newAppointment.save();
-    res
-      .status(201)
-      .json({
-        message: "Appointment booked successfully.",
-        appointment: newAppointment,
-      });
+    res.status(201).json({
+      message: "Appointment booked successfully.",
+      appointment: newAppointment,
+    });
   } catch (error) {
     res.status(500).json({ message: "Error booking appointment.", error });
   }
@@ -124,6 +118,7 @@ const bookAppointment = async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {Promise<void>} - JSON response with appointments
  */
+
 const getAppointments = async (req, res) => {
   try {
     const studentId = req.user.id;

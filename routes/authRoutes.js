@@ -30,6 +30,7 @@ router.get("/protected", authMiddleware, (req, res) => {
  * @returns {Object} User data and JWT token in cookie
  * @access Public
  */
+// /api/auth/register
 router.post("/register", authController.register);
 
 /**
@@ -40,6 +41,7 @@ router.post("/register", authController.register);
  * @returns {Object} User data and JWT token in cookie
  * @access Public
  */
+//  /api/auth/login
 router.post("/login", authController.login);
 
 module.exports = router;

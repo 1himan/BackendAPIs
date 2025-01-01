@@ -24,6 +24,7 @@ const roleMiddleware = require("../middlewares/roles");
  * @middleware roleMiddleware("professor") - Ensures user is a professor
  * @access Private (Professors only)
  */
+// /api/professor/availability
 router.post(
   "/availability",
   authMiddleware, // Validates the token and sets req.user
