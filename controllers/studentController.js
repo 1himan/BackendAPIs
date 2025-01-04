@@ -24,6 +24,17 @@ const User = require("../models/User");
 const viewAvailability = async (req, res) => {
   try {
     const { professorId } = req.query;
+
+    if (!professorId) {
+      return res.status(400).json({ message: "Professor ID is required." });
+    }
+
+    const professor = await User.findOne({ _id: professorId, role: "professor" });
+
+    if (!professor) {
+      return res.status(404).json({ message: "Professor not found." });
+    }
+
     const availability = await Availability.find({ professor: professorId });
     res.status(200).json(availability);
   } catch (error) {

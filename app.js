@@ -6,7 +6,20 @@
  * @requires mongoose
  * @requires body-parser
  * @requires cookie-parser
+ * @requires dotenv
  */
+
+// Load environment variables based on NODE_ENV
+require("dotenv").config({
+  path:
+    process.env.NODE_ENV === "production"
+      ? ".env.production"
+      : ".env.development",
+});
+// Add this right after the dotenv.config() call
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('MONGO_URI:', process.env.MONGO_URI);
+console.log('CA_CERT_PATH:', process.env.CA_CERT_PATH); 
 
 const express = require("express");
 const app = express();
@@ -24,28 +37,30 @@ app.use(cookieParser());
 
 /**
  * Database Connection
- * Establishes connection to MongoDB using Mongoose
+ * Establishes connection to MongoDB/DocumentDB using Mongoose
  *
- * @param {string} url - MongoDB connection URL
- * @param {Object} options - MongoDB connection options
+ * @param {string} url - MongoDB/DocumentDB connection URL from environment variables
+ * @param {Object} options - Connection options including TLS settings
  * @returns {Promise} Resolves when connection is established
- *
- * Database Name: college-appointment-system
- * Host: localhost
- * Port: Default MongoDB port (27017)
  */
-// mongoose
-//   .connect(process.env.MONGO_URI)
-//   .then(() => console.log("MongoDB connected"))
-//   .catch((err) => console.log(err));
+const connectionOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
+
+// Include CA Certificate if provided in environment
+if (process.env.CA_CERT_PATH) {
+  connectionOptions.tlsCAFile = process.env.CA_CERT_PATH;
+}
+
+mongoose
+  .connect(process.env.MONGO_URI, connectionOptions)
+  .then(() => console.log("Connected to MongoDB/DocumentDB"))
+  .catch((err) => console.error("Database connection error:", err));
 
 /**
  * Route Imports
  * Importing modularized route handlers for different functionalities
- *
- * @requires ./routes/authRoutes - Authentication related routes
- * @requires ./routes/professorRoutes - Professor specific routes
- * @requires ./routes/studentRoutes - Student specific routes
  */
 const authRoutes = require("./routes/authRoutes");
 const professorRoutes = require("./routes/professorRoutes");
@@ -54,10 +69,6 @@ const studentRoutes = require("./routes/studentRoutes");
 /**
  * Route Middleware Setup
  * Configures the base paths for different route modules
- *
- * Authentication routes: /api/auth/*
- * Professor routes: /api/professor/*
- * Student routes: /api/student/*
  */
 app.get("/", (req, res) => {
   res.send("Hello and welcome to our server!");
@@ -69,20 +80,10 @@ app.use("/api/student", studentRoutes);
 /**
  * Server Initialization
  * Starts the Express server on the specified port
- *
- * @param {number} port - Port number (5000)
- * @param {Function} callback - Function to execute once server starts
  */
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log("Server running on port 5000");
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT} and accessible to all IPs`);
 });
 
-/**
- * Module Exports
- * Exports the configured Express application for testing or external use
- *
- * @exports app
- * @type {Object} Express application instance
- */
 module.exports = app;
