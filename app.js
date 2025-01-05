@@ -43,10 +43,7 @@ app.use(cookieParser());
  * @param {Object} options - Connection options including TLS settings
  * @returns {Promise} Resolves when connection is established
  */
-const connectionOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
+const connectionOptions = {};
 
 // Include CA Certificate if provided in environment
 if (process.env.CA_CERT_PATH) {
