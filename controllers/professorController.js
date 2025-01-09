@@ -101,21 +101,18 @@ const getAvailability = async (req, res) => {
 const cancelAppointment = async (req, res) => {
   try {
     const { appointmentId } = req.params;
-    const professorId = req.user.id;
+    const userId = req.user.id;
 
     // Find and validate appointment
     const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found." });
     }
-
-    // Verify professor's authorization
-    if (appointment.professor.toString() !== professorId) {
+    if (!appointment.participants.map((p) => p.toString()).includes(userId)) {
       return res.status(403).json({
         message: "Not authorized to cancel this appointment.",
       });
     }
-
     // Update appointment status
     appointment.status = "canceled";
     await appointment.save();

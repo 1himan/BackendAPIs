@@ -61,7 +61,6 @@ const viewAvailability = async (req, res) => {
 const bookAppointment = async (req, res) => {
   try {
     const { studentId, professorId, startTime, endTime, date, day } = req.body;
-
     if (!studentId || !professorId || !startTime || !endTime || !date) {
       return res.status(400).json({ message: "Missing required fields." });
     }

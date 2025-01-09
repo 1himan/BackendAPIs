@@ -24,7 +24,7 @@ const roleMiddleware = require("../middlewares/roles");
  * @middleware roleMiddleware("professor") - Ensures user is a professor
  * @access Private (Professors only)
  */
-// /api/professor/availability
+// domain/api/professor/availability
 router.post(
   "/availability",
   authMiddleware, // Validates the token and sets req.user
@@ -40,6 +40,7 @@ router.post(
  * @param {string} professorId - The ID of the professor
  * @access Public
  */
+
 router.get("/availability/:professorId", professorController.getAvailability);
 
 /**
@@ -52,6 +53,7 @@ router.get("/availability/:professorId", professorController.getAvailability);
  * @middleware roleMiddleware("professor") - Ensures user is a professor
  * @access Private (Professors only)
  */
+
 router.put(
   "/cancel-appointment/:appointmentId",
   authMiddleware, // Validates the token

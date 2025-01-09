@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true, match: /.+@.+\..+/ },
   password: { type: String, required: true },
-  role: { type: String, enum: ["student", "professor"], required: true },
+  role: { type: String, enum: ["student", "professor", "warden"], required: true },
 });
 
 /**
